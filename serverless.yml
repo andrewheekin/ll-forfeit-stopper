@@ -1,0 +1,36 @@
+app: ll-forfeit-stopper-app
+service: ll-forfeit-stopper
+useDotenv: true
+
+provider:
+  name: aws
+  stage: ${opt:stage, 'prod'}
+  region: ${env:AWS_REGION, 'us-east-1'}
+  environment:
+    USERNAME: ${env:USERNAME}
+    PASSWORD: ${env:PASSWORD}
+    SITE_URL: ${env:SITE_URL}
+    SMS_BODY: ${env:SMS_BODY}
+    TWILIO_ACCOUNT_SID: ${env:TWILIO_ACCOUNT_SID}
+    TWILIO_AUTH_TOKEN: ${env:TWILIO_AUTH_TOKEN}
+    TWILIO_PHONE_NUMBER: ${env:TWILIO_PHONE_NUMBER}
+    PHONE_NUMBER: ${env:PHONE_NUMBER}
+    INNER_TEXT: ${env:INNER_TEXT}
+    GROUPME_API_URL: ${env:GROUPME_API_URL}
+    GROUPME_BOT_ID: ${env:GROUPME_BOT_ID}
+  ecr:
+    images:
+      img:
+        path: ./
+        platform: linux/amd64
+
+functions:
+  check-ll-submission:
+    timeout: 60
+    # If you experience any errors such as Chrome crashing or not being available you might need to increase the storage available to your Lambda Function. See #102
+    memorySize: 2048
+    image:
+      name: img
+    events:
+      - schedule: cron(0 1 * * ? *) # Invoke Lambda function at 01:00 UTC (8PM EST)
+      - schedule: cron(0 2 * * ? *) # Invoke Lambda function at 02:00 UTC (9PM EST)

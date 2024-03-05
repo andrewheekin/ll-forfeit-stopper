@@ -1,5 +1,7 @@
-
 venv/
 .env
 .DS_Store
 webdrivers/
+.serverless
+node_modules
+npm-debug.log*
