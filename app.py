@@ -7,8 +7,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.service import Service
-# from selenium.webdriver.chrome.options import Options
 from selenium.webdriver import ChromeOptions
+import boto3
 from twilio.rest import Client
 from dotenv import load_dotenv
 
@@ -24,6 +24,7 @@ TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 PHONE_NUMBER = os.getenv("PHONE_NUMBER")
 SMS_BODY = os.getenv("SMS_BODY")
 SITE_URL = os.getenv("SITE_URL")
+AWS_REGION = os.getenv("AWS_REGION")
 
 
 def setup_driver(headless=False):
@@ -45,9 +46,9 @@ def setup_driver(headless=False):
     
     # Construct the path to the ChromeDriver
     webdriver_path = os.path.join(os.path.dirname(__file__), 'webdrivers', driver_filename)
-    
+
     print(f"Platform: {platform.system()}")
-    print(f"Using ChromeDriver: {webdriver_path}")
+    print(f"Using ChromeDriver located at: {webdriver_path}")
     # Ensure the ChromeDriver has executable permissions
     os.chmod(webdriver_path, 0o755)
 
@@ -109,7 +110,7 @@ def check_todays_submission(driver):
 
 
 
-def send_text_message():
+def send_twilio_sms_message():
     client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
     message = client.messages.create(
         body=SMS_BODY,
@@ -117,6 +118,21 @@ def send_text_message():
         to=PHONE_NUMBER
     )
     print(f"Message sent: {message.sid}")
+
+
+
+def send_aws_sns_sms_message(phone_number, message):
+    # Create an SNS client
+    sns = boto3.client('sns', region_name=AWS_REGION)
+
+    # Send an SMS message
+    response = sns.publish(
+        PhoneNumber=phone_number,
+        Message=message,
+    )
+
+    return response
+
 
 
 def parse_arguments():
@@ -142,6 +158,7 @@ def main():
             print("\nType 1 to access LL site")
             print("Type 2 to login to LL site")
             print("Type 3 for submission check")
+            print("Type 4 to send SMS message")
             print("Type 0 to quit")
 
             choice = input("Enter your choice: ")
@@ -153,6 +170,12 @@ def main():
             elif choice == "3":
                 result = check_todays_submission(driver)
                 print(f"User has submitted today: {result}")
+            elif choice == "4":
+                print("Sending message...")
+                # send_twilio_sms_message()
+                # response = send_aws_sns_sms_message(PHONE_NUMBER, SMS_BODY)
+                # print(f"Message sent: {response}")
+                
             elif choice == "0":
                 if driver:
                     driver.quit()
@@ -167,7 +190,9 @@ def main():
             exists = check_todays_submission(driver)
             if not exists:
                 print("Submission not found. Sending reminder text message.")
-                send_text_message()
+                # send_twilio_sms_message()
+                # response = send_aws_sns_sms_message(PHONE_NUMBER, SMS_BODY)
+                # print(f"Message sent: {response}")
             else:
                 print("Submission found. No action needed.")
         else:
