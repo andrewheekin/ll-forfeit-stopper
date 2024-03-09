@@ -24,7 +24,12 @@ Instructions:
 2. Create the venv: `python3 -m venv venv`
 2. Activate the virtualenv: `. venv/bin/activate`
 3. `pip install -r requirements.txt`
-4. `python3 app.py`
+4. `python3 simpler.py`
+
+Deploy to crontab:
+1. `crontab -e`
+2. Add the following line to run the script every day at 9pm:
+	`0 17 * * * /usr/bin/python3 /path/to/simpler.py`
 
 
 """
@@ -141,7 +146,6 @@ def main():
 		print("\nType 1 to access LL site")
 		print("Type 2 to login to LL site")
 		print("Type 3 for submission check")
-		print("Type 4 to send SMS message")
 		print("Type 0 to quit")
 
 		choice = input("Enter your choice: ")
@@ -154,8 +158,6 @@ def main():
 			result = check_todays_submission(driver)
 			send_groupme_message(
 				"You've submitted LL" if result else "🚨 Please submit LL today :)")
-		elif choice == "4":
-			print("Sending message...")
 		elif choice == "0":
 			print("Exiting...")
 			if driver:
