@@ -19,9 +19,10 @@ LL Forfeit Stopper
 Author: Andrew Heekin
 
 Instructions:
-1. Activate the virtualenv
-2. `pip install -r requirements.txt`
-3. `python3 app.py --interactive (or -i to run the script in interactive mode)`
+1. Add the Mac ARM ChromeDriver to `webdrivers/chromedriver-122-mac-arm64`
+2. Activate the virtualenv
+3. `pip install -r requirements.txt`
+4. `python3 app.py --interactive (or -i to run the script in interactive mode)`
 
 
 """
