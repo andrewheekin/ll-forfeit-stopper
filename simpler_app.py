@@ -24,12 +24,12 @@ Instructions:
 2. Create the venv: `python3 -m venv venv`
 2. Activate the virtualenv: `. venv/bin/activate`
 3. `pip install -r requirements.txt`
-4. `python3 simpler.py`
+4. `python3 simpler_app.py`
 
 Deploy to crontab:
 1. `crontab -e`
 2. Add the following line to run the script every day at 9pm:
-	`0 17 * * * /usr/bin/python3 /path/to/simpler.py`
+	`0 17 * * * /usr/bin/python3 /path/to/simpler_app.py`
 
 
 """
