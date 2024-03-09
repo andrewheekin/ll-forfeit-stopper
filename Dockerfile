@@ -1,3 +1,6 @@
+# Author: Umihiko Iwasa @umihico
+# https://github.com/umihico/docker-selenium-lambda/blob/main/Dockerfile
+
 FROM public.ecr.aws/lambda/python@sha256:6db34bc7b73e25ae2fdb2421815805cd404ae4c0f46bcc336c677ea40f901877 as build
 
 RUN dnf install -y unzip && \

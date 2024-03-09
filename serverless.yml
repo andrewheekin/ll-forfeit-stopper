@@ -27,10 +27,10 @@ provider:
 functions:
   check-ll-submission:
     timeout: 60
-    # If you experience any errors such as Chrome crashing or not being available you might need to increase the storage available to your Lambda Function. See #102
-    memorySize: 2048
+    memorySize: 2048 # If you experience any errors such as Chrome crashing or not being available you might need to increase the storage available to your Lambda Function. See #102
     image:
       name: img
     events:
+      - schedule: cron(30 23 * * ? *) # Invoke Lambda function at 23:30 UTC (6:30PM EST)
       - schedule: cron(0 1 * * ? *) # Invoke Lambda function at 01:00 UTC (8PM EST)
       - schedule: cron(0 2 * * ? *) # Invoke Lambda function at 02:00 UTC (9PM EST)

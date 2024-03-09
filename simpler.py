@@ -9,8 +9,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.service import Service
-import boto3
-from twilio.rest import Client
 from dotenv import load_dotenv
 
 # Load environment variables from .env file for local execution
@@ -19,39 +17,10 @@ load_dotenv()
 # Retrieve credentials and Twilio details from environment or .env file
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
-PHONE_NUMBER = os.getenv("PHONE_NUMBER")
-SMS_BODY = os.getenv("SMS_BODY")
 SITE_URL = os.getenv("SITE_URL")
-AWS_REGION = os.getenv("AWS_REGION")
 INNER_TEXT = os.getenv("INNER_TEXT")
 GROUPME_API_URL = os.getenv("GROUPME_API_URL")
 GROUPME_BOT_ID = os.getenv("GROUPME_BOT_ID")
-
-
-def setup_driver_serverless():
-    options = webdriver.ChromeOptions()
-    service = webdriver.ChromeService("/opt/chromedriver")
-
-    options.binary_location = '/opt/chrome/chrome'
-    options.add_argument("--headless=new")
-    options.add_argument('--no-sandbox')
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1280x1696")
-    options.add_argument("--single-process")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-dev-tools")
-    options.add_argument("--no-zygote")
-    options.add_argument(f"--user-data-dir={mkdtemp()}")
-    options.add_argument(f"--data-path={mkdtemp()}")
-    options.add_argument(f"--disk-cache-dir={mkdtemp()}")
-    options.add_argument("--remote-debugging-port=9222")
-
-    chrome = webdriver.Chrome(options=options, service=service)
-    print("Headless Chrome driver initialized")
-    return chrome
 
 
 def setup_driver_mac(headless=False):
@@ -120,37 +89,16 @@ def check_todays_submission(driver):
         else:
             has_submitted_today = True
 
-        print(f"User {'has' if has_submitted_today else 'has NOT'} submitted today.")
+        print(
+            f"User {'has' if has_submitted_today else 'has NOT'} submitted today.")
         return has_submitted_today
     except:
         # If the div is not found or any other exception occurs, assume submission has occurred
         has_submitted_today = True
 
-        print(f"User {'has' if has_submitted_today else 'has NOT'} submitted today.")
+        print(
+            f"User {'has' if has_submitted_today else 'has NOT'} submitted today.")
         return has_submitted_today
-
-
-def send_twilio_sms_message(phone_number, message):
-    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-    message = client.messages.create(
-        body=message,
-        from_=TWILIO_PHONE_NUMBER,
-        to=phone_number
-    )
-    return message
-
-
-def send_aws_sns_sms_message(phone_number, message):
-    # Create an SNS client
-    sns = boto3.client('sns', region_name=AWS_REGION)
-
-    # Send an SMS message
-    response = sns.publish(
-        PhoneNumber=phone_number,
-        Message=message,
-    )
-
-    return response
 
 
 def send_groupme_message(message):
@@ -219,8 +167,6 @@ def main():
                     "You've submitted LL" if result else "🚨 Please submit LL today :)")
             elif choice == "4":
                 print("Sending message...")
-                # response = send_twilio_sms_message(PHONE_NUMBER, SMS_BODY)
-                # response = send_aws_sns_sms_message(PHONE_NUMBER, SMS_BODY)
             elif choice == "0":
                 print("Exiting...")
                 if driver:
@@ -232,41 +178,16 @@ def main():
         access_ll_site(driver)
         if login(driver, USERNAME, PASSWORD):
             exists = check_todays_submission(driver)
+            send_groupme_message(
+                "You've submitted LL" if exists else "🚨 Please submit LL today :)")
             if not exists:
                 print("Submission not found. Sending reminder text message.")
-                # response = send_twilio_sms_message(PHONE_NUMBER, SMS_BODY)
-                # response = send_aws_sns_sms_message(PHONE_NUMBER, SMS_BODY)
-                # print(f"Message sent: {response}")
+
             else:
                 print("Submission found. No action needed.")
         else:
             print("Login failed or page did not load properly.")
         driver.quit()
-
-
-def handler(event=None, context=None):
-    # Serverless function entry point (ex AWS Lambda), headless mode is enabled by default
-    driver = setup_driver_serverless()
-    access_ll_site(driver)
-    if login(driver, USERNAME, PASSWORD):
-        exists = check_todays_submission(driver)
-        if not exists:
-            print("Submission not found. Sending reminder text message.")
-            # response = send_twilio_sms_message(PHONE_NUMBER, SMS_BODY)
-            # response = send_aws_sns_sms_message(PHONE_NUMBER, SMS_BODY)
-            # print(f"Message sent: {response}")
-
-            # Send a message to a GroupMe group
-            send_groupme_message("🚨 Please submit LL today :)")
-        else:
-            print("Submission found. No action needed.")
-
-            # 2024-03-04 Worked, no need for this message
-            send_groupme_message("You've submitted LL")
-    else:
-        print("Login failed or page did not load properly.")
-    driver.quit()
-    # return {"status": "success"}
 
 
 if __name__ == "__main__":
