@@ -14,6 +14,18 @@ from dotenv import load_dotenv
 # Load environment variables from .env file for local execution
 load_dotenv()
 
+"""
+LL Forfeit Stopper
+Author: Andrew Heekin
+
+Instructions:
+1. Activate the virtualenv
+2. `pip install -r requirements.txt`
+3. `python3 app.py --interactive (or -i to run the script in interactive mode)`
+
+
+"""
+
 # Retrieve credentials and Twilio details from environment or .env file
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
