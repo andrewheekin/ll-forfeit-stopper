@@ -31,6 +31,6 @@ functions:
     image:
       name: img
     events:
-      - schedule: cron(30 23 * * ? *) # Invoke Lambda function at 23:30 UTC (6:30PM EST)
-      - schedule: cron(0 1 * * ? *) # Invoke Lambda function at 01:00 UTC (8PM EST)
-      - schedule: cron(0 2 * * ? *) # Invoke Lambda function at 02:00 UTC (9PM EST)
+      - schedule: cron(30 23 * * 1-5 *) # Invoke Lambda function at 23:30 UTC (6:30PM EST), Mon-Fri
+      - schedule: cron(0 0 * * 1-5 *) # Invoke Lambda function at 01:00 UTC (8PM EST, 9PM EDT), Mon-Fri
+      - schedule: cron(0 1 * * 1-5 *) # Invoke Lambda function at 02:00 UTC (9PM EST, 10PM EDT), Mon-Fri
